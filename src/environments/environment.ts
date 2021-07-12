@@ -16,6 +16,7 @@ export const environment = {
         { name: 'resources/memory', memoryProfilerUrl: 'http://develop.dev.tezedge.com:17832' },
         { name: 'resources/storage' },
         { name: 'mempool' },
+        { name: 'state' },
         { name: 'storage' },
         { name: 'network' },
         { name: 'logs' },
