@@ -3,6 +3,6 @@ import { SystemResourcesSummaryBlock } from './system-resources-summary-block.ty
 export interface SystemResourcesSummary {
   cpu: SystemResourcesSummaryBlock[];
   memory: SystemResourcesSummaryBlock[];
-  disk: SystemResourcesSummaryBlock[];
+  storage: SystemResourcesSummaryBlock[];
   timestamp: string;
 }

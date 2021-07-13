@@ -4,51 +4,25 @@ import { HttpClient } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { State } from '../../app.reducers';
+import { ErrorActionTypes } from '../../shared/error-popup/error-popup.action';
+import { ObservedValueOf } from 'rxjs';
 
 @Injectable()
 export class CommitNumberEffects {
 
   @Effect()
-  ExplorerNodeLoad$ = this.actions$.pipe(
-    ofType('SETTINGS_NODE_LOAD_SUCCESS'),
-
-    // merge state
-    withLatestFrom(this.store, (action: any, state) => ({ action, state })),
-
-    switchMap(({ action, state }) => {
-      return this.http.get(setNodeCommitUrl(state));
-    }),
-
-    // dispatch action
-    map((payload) => ({ type: 'VERSION_NODE_LOAD_SUCCESS', payload })),
-    catchError((error, caught) => {
-      console.error(error);
-      this.store.dispatch({
-        type: 'VERSION_NODE_LOAD_ERROR',
-        payload: error
-      });
-      return caught;
-    })
-  );
-
-  @Effect()
   VersionNodeLoad$ = this.actions$.pipe(
-    ofType('VERSION_NODE_LOAD'),
-
-    // merge state
-    withLatestFrom(this.store, (action: any, state) => ({ action, state })),
-
+    ofType('SETTINGS_NODE_LOAD_SUCCESS', 'VERSION_NODE_LOAD'),
+    withLatestFrom(this.store, (action: any, state: ObservedValueOf<Store<State>>) => ({ action, state })),
     switchMap(({ action, state }) => {
-      return this.http.get(setNodeCommitUrl(state));
+      return this.http.get(state.settingsNode.activeNode.http + '/monitor/commit_hash/');
     }),
-
-    // dispatch action
     map((payload) => ({ type: 'VERSION_NODE_LOAD_SUCCESS', payload })),
     catchError((error, caught) => {
       console.error(error);
       this.store.dispatch({
-        type: 'VERSION_NODE_LOAD_ERROR',
-        payload: error
+        type: ErrorActionTypes.ADD_ERROR,
+        payload: { title: 'Node version HTTP error:', message: error.message }
       });
       return caught;
     })
@@ -57,16 +31,17 @@ export class CommitNumberEffects {
   @Effect()
   VersionDebuggerLoad$ = this.actions$.pipe(
     ofType('VERSION_DEBUGGER_LOAD'),
-    withLatestFrom(this.store, (action: any, state) => ({ action, state })),
+    withLatestFrom(this.store, (action: any, state: ObservedValueOf<Store<State>>) => ({ action, state })),
     switchMap(({ action, state }) => {
-      return this.http.get(setDebuggerCommitUrl(state));
+      const debuggerUrl = state.settingsNode.activeNode.features.find(f => f.name === 'debugger').url;
+      return this.http.get(`${debuggerUrl}/v2/version/`);
     }),
     map((payload) => ({ type: 'VERSION_DEBUGGER_LOAD_SUCCESS', payload })),
     catchError((error, caught) => {
       console.error(error);
       this.store.dispatch({
-        type: 'VERSION_DEBUGGER_LOAD_ERROR',
-        payload: error
+        type: ErrorActionTypes.ADD_ERROR,
+        payload: { title: 'Debugger version HTTP error:', message: error.message }
       });
       return caught;
     })
@@ -75,21 +50,19 @@ export class CommitNumberEffects {
   @Effect()
   VersionNodeTagLoad$ = this.actions$.pipe(
     ofType('VERSION_NODE_LOAD'),
-
-    // merge state
-    withLatestFrom(this.store, (action: any, state) => ({ action, state })),
-
+    withLatestFrom(this.store, (action: any, state: ObservedValueOf<Store<State>>) => ({ action, state })),
     switchMap(({ action, state }) => {
-      return this.http.get(setNodeTagUrl(state));
+      const url = state.settingsNode.activeNode.id === 'ocaml'
+        ? state.settingsNode.activeNode.http + '/version/'
+        : state.settingsNode.activeNode.http + '/dev/version/';
+      return this.http.get(url);
     }),
-
-    // dispatch action
     map((payload) => ({ type: 'VERSION_NODE_TAG_LOAD_SUCCESS', payload })),
     catchError((error, caught) => {
       console.error(error);
       this.store.dispatch({
-        type: 'VERSION_NODE_TAG_LOAD_ERROR',
-        payload: error
+        type: ErrorActionTypes.ADD_ERROR,
+        payload: { title: 'Node tag version HTTP error:', message: error.message }
       });
       return caught;
     })
@@ -99,19 +72,4 @@ export class CommitNumberEffects {
               private actions$: Actions,
               private store: Store<State>) { }
 
-}
-
-export function setNodeCommitUrl(state) {
-  return state.settingsNode.activeNode.http + '/monitor/commit_hash/';
-}
-
-export function setNodeTagUrl(state) {
-  if (state.settingsNode.activeNode.id === 'ocaml') {
-    return state.settingsNode.activeNode.http + '/version/';
-  }
-  return state.settingsNode.activeNode.http + '/dev/version/';
-}
-
-export function setDebuggerCommitUrl(state) {
-  return `${state.settingsNode.activeNode.features.find(f => f.name === 'debugger').url}/v2/version/`;
 }

@@ -1,7 +1,5 @@
 import { Params, RouterStateSnapshot, Routes } from '@angular/router';
 import { RouterStateSerializer } from '@ngrx/router-store';
-
-import { LogsComponent } from './logs/logs.component';
 import { MempoolComponent } from './mempool/mempool.component';
 import { NetworkComponent } from './network/network.component';
 import { EndpointsComponent } from './endpoints/endpoints.component';
@@ -33,8 +31,10 @@ export const AppRouting: Routes = [
     path: 'state',
     loadChildren: () => import('./state-chart/state-chart.module').then(module => module.StateChartModule)
   },
-
-  { path: 'logs', component: LogsComponent },
+  {
+    path: 'logs',
+    loadChildren: () => import('./logs/logs.module').then(module => module.LogsModule)
+  },
 
   { path: 'chain', component: ChainComponent },
 

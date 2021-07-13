@@ -9,10 +9,8 @@ import { StorageBlockDetailsComponent } from './storage-block-details/storage-bl
 import { StorageActionComponent } from './storage-action/storage-action.component';
 import { StorageSearchComponent } from './storage-search/storage-search.component';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
-import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 @NgModule({
@@ -28,10 +26,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     StorageRoutingModule,
     TezedgeSharedModule,
     NgxJsonViewerModule,
-    MatIconModule,
     MatFormFieldModule,
     FormsModule,
-    MatTooltipModule,
   ]
 })
 export class StorageModule {}

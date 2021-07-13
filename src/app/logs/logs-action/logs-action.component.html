@@ -15,7 +15,6 @@
             <svg-icon icon="close" scale="0.8"></svg-icon>
           </button>
         </div>
-
       </div>
 
       <mat-accordion class="filters-accordion">
@@ -35,24 +34,9 @@
 
             <div class="filters-row">
               <span class="filters-label">Level</span>
-              <button mat-flat-button [class.active]="virtualScrollItems.filter.trace || !activeFilters.length"
-                      (click)=" filterType('trace')">
-                Trace
-                <svg-icon icon="close" scale="0.8"></svg-icon>
-              </button>
-              <button mat-flat-button [class.active]="virtualScrollItems.filter.debug || !activeFilters.length"
-                      (click)="filterType('debug')">
-                Debug
-                <svg-icon icon="close" scale="0.8"></svg-icon>
-              </button>
               <button mat-flat-button [class.active]="virtualScrollItems.filter.info || !activeFilters.length"
                       (click)=" filterType('info')">
                 Info
-                <svg-icon icon="close" scale="0.8"></svg-icon>
-              </button>
-              <button mat-flat-button [class.active]="virtualScrollItems.filter.notice || !activeFilters.length"
-                      (click)=" filterType('notice')">
-                Notice
                 <svg-icon icon="close" scale="0.8"></svg-icon>
               </button>
               <button mat-flat-button [class.active]="virtualScrollItems.filter.warning || !activeFilters.length"
@@ -68,6 +52,21 @@
               <button mat-flat-button [class.active]="virtualScrollItems.filter.fatal || !activeFilters.length"
                       (click)=" filterType('fatal')">
                 Fatal
+                <svg-icon icon="close" scale="0.8"></svg-icon>
+              </button>
+              <button mat-flat-button [class.active]="virtualScrollItems.filter.trace || !activeFilters.length"
+                      (click)=" filterType('trace')">
+                Trace
+                <svg-icon icon="close" scale="0.8"></svg-icon>
+              </button>
+              <button mat-flat-button [class.active]="virtualScrollItems.filter.debug || !activeFilters.length"
+                      (click)="filterType('debug')">
+                Debug
+                <svg-icon icon="close" scale="0.8"></svg-icon>
+              </button>
+              <button mat-flat-button [class.active]="virtualScrollItems.filter.notice || !activeFilters.length"
+                      (click)=" filterType('notice')">
+                Notice
                 <svg-icon icon="close" scale="0.8"></svg-icon>
               </button>
 
@@ -147,12 +146,73 @@
 
       <button fxLayout="row" fxLayoutAlign="center center" class="square-button" id="nextPage" mat-icon-button
               matTooltip="Next Page" (click)="loadNextPage()"
-              [disabled]="!virtualScrollItems?.pages?.length || virtualScrollItems.activePage.id == virtualScrollItems?.pages[virtualScrollItems?.pages?.length - 1]">
+              [disabled]="!virtualScrollItems?.pages?.length || virtualScrollItems.activePage.id === virtualScrollItems?.pages[virtualScrollItems?.pages?.length - 1]">
         <svg-icon icon="greater-than"></svg-icon>
       </button>
+      <form [formGroup]="formGroup"
+            (ngSubmit)="searchByTime()"
+            class="d-flex">
+        <mat-form-field appearance="fill"
+                        class="custom-bottom-form-field pointer">
+          <input matInput
+                 [matDatepicker]="picker"
+                 formControlName="date"
+                 placeholder="Date"
+                 autocomplete="off"
+                 [max]="dateNow"
+                 (click)="picker.open()">
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="fill"
+                        class="custom-bottom-form-field time-field">
+          <input matInput
+                 type="text" pattern="\d*"
+                 formControlName="hour"
+                 placeholder="hh"
+                 maxlength="2"
+                 max="23"
+                 autocomplete="off">
+        </mat-form-field>
+        <mat-form-field appearance="fill"
+                        class="custom-bottom-form-field time-field">
+          <input matInput
+                 type="text" pattern="\d*"
+                 formControlName="minute"
+                 placeholder="mm"
+                 maxlength="2"
+                 max="59"
+                 autocomplete="off">
+        </mat-form-field>
+        <mat-form-field appearance="fill"
+                        class="custom-bottom-form-field time-field">
+          <input matInput
+                 type="text" pattern="\d*"
+                 formControlName="second"
+                 placeholder="ss"
+                 maxlength="2"
+                 max="59"
+                 autocomplete="off">
+        </mat-form-field>
+        <mat-form-field appearance="fill"
+                        class="custom-bottom-form-field time-field">
+          <input matInput
+                 type="text" pattern="\d*"
+                 maxlength="3"
+                 formControlName="millisecond"
+                 placeholder="ms"
+                 autocomplete="off">
+        </mat-form-field>
+        <button fxLayout="row"
+                type="submit"
+                fxLayoutAlign="center center"
+                class="square-button"
+                mat-icon-button
+                matTooltip="Go">
+          <svg-icon icon="greater-than"></svg-icon>
+        </button>
+      </form>
 
-
-      <span class="active-page-details">
+      <span>
         Active Page:
         {{virtualScrollItems?.activePage?.numberOfRecords || 0}}
         records

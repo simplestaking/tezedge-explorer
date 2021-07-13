@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { HttpClient } from '@angular/common/http';
-import { State, Store } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 import { catchError, map, switchMap, takeUntil, tap, withLatestFrom } from 'rxjs/operators';
 import { ObservedValueOf, of, Subject, timer } from 'rxjs';
+import { State } from '../../app.reducers';
 
 const logActionDestroy$ = new Subject();
 
@@ -14,7 +15,7 @@ export class LogsActionEffects {
   LogsActionLoad$ = this.actions$.pipe(
     ofType('LOGS_ACTION_LOAD'),
 
-    withLatestFrom(this.store, (action: any, state: ObservedValueOf<State<Store>>) => ({action, state})),
+    withLatestFrom(this.store, (action: any, state: ObservedValueOf<Store<State>>) => ({action, state})),
 
     switchMap(({ action, state }) => {
       return this.http.get(setUrl(action, state));
@@ -36,7 +37,7 @@ export class LogsActionEffects {
     ofType('LOGS_ACTION_FILTER'),
 
     // merge state
-    withLatestFrom(this.store, (action: any, state: ObservedValueOf<State<Store>>) => ({action, state})),
+    withLatestFrom(this.store, (action: any, state: ObservedValueOf<Store<State>>) => ({action, state})),
 
     tap(response => {
       logActionDestroy$.next();
@@ -61,7 +62,7 @@ export class LogsActionEffects {
     ofType('LOGS_ACTION_START'),
 
     // merge state
-    withLatestFrom(this.store, (action: any, state: ObservedValueOf<State<Store>>) => ({action, state})),
+    withLatestFrom(this.store, (action: any, state: ObservedValueOf<Store<State>>) => ({action, state})),
 
     switchMap(({ action, state }) =>
       // get header data every second
@@ -82,7 +83,7 @@ export class LogsActionEffects {
   LogsActionStopEffect$ = this.actions$.pipe(
     ofType('LOGS_ACTION_STOP'),
     // merge state
-    withLatestFrom(this.store, (action: any, state: ObservedValueOf<State<Store>>) => ({action, state})),
+    withLatestFrom(this.store, (action: any, state: ObservedValueOf<Store<State>>) => ({action, state})),
     // init app modules
     tap(({ action, state }) => {
       // console.log('[LOGS_ACTION_STOP] stream', state.logsAction.stream);
@@ -96,7 +97,7 @@ export class LogsActionEffects {
   constructor(
     private http: HttpClient,
     private actions$: Actions,
-    private store: Store<any>
+    private store: Store<State>
   ) {
   }
 
@@ -105,11 +106,12 @@ export class LogsActionEffects {
 export function setUrl(action, state) {
   const url = `${state.settingsNode.activeNode.features.find(f => f.name === 'debugger').url}/v2/log?node_name=${state.settingsNode.activeNode.p2p_port}&`;
 
-  const cursor = logsActionCursor(action);
   const filters = logsActionFilter(action, state);
+  const cursor = logsActionCursor(action);
+  const timeInterval = logsActionTimeInterval(action);
   const limit = logsActionLimit(action);
 
-  return `${url}${filters.length ? `${filters}&` : ''}${cursor.length ? `${cursor}&` : ''}${limit}`;
+  return `${url}${filters.length ? `${filters}&` : ''}${cursor.length ? `${cursor}&` : ''}${timeInterval}${limit}`;
 }
 
 // use limit to load just the necessary number of records
@@ -124,7 +126,13 @@ export function logsActionLimit(action) {
 // use cursor to load previous pages
 export function logsActionCursor(action) {
   return action.payload && action.payload.cursor_id ?
-    `cursor_id=${action.payload.cursor_id}` :
+    `cursor=${action.payload.cursor_id}` :
+    '';
+}
+
+export function logsActionTimeInterval(action): string {
+  return action.payload && action.payload.from && action.payload.to ?
+    `from=${action.payload.from}&to=${action.payload.to}&` :
     '';
 }
 
@@ -144,7 +152,7 @@ export function logsActionFilter(action, state) {
     filterType = stateFilter.fatal ? filterType + 'fatal,' : filterType;
 
     // remove the last ,
-    filterType = filterType.length > 0 ? 'level=' + filterType.slice(0, -1) : '';
+    filterType = filterType.length > 0 ? 'log_level=' + filterType.slice(0, -1) : '';
   }
 
   return filterType;

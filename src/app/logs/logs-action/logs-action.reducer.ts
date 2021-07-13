@@ -116,11 +116,11 @@ export function setVirtualScrollId(action, state, accumulator): number {
 
 export function setActivePage(entities, action): VirtualScrollActivePage {
   if (!action.payload.length) {
-    return {};
+    return null;
   }
 
   return {
-    id: entities[action.payload.length - 1].originalId,
+    id: entities[action.payload.length - 1].id,
     start: entities[0],
     end: entities[action.payload.length - 1],
     numberOfRecords: action.payload.length
@@ -128,7 +128,7 @@ export function setActivePage(entities, action): VirtualScrollActivePage {
 }
 
 export function setPages(activePage, state): number[] {
-  if (!activePage.id) {
+  if (!activePage) {
     return [];
   }
 

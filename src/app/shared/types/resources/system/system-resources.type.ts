@@ -4,7 +4,7 @@ import { SystemResourcesSummary } from './system-resources-summary.type';
 export class SystemResources {
   cpu: SystemResourcesSeries[];
   memory: SystemResourcesSeries[];
-  disk: SystemResourcesSeries[];
+  storage: SystemResourcesSeries[];
   xTicksValues: string[];
   resourcesSummary: SystemResourcesSummary;
   colorScheme: { domain: string[] };

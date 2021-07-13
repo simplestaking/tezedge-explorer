@@ -77,9 +77,6 @@ import { EndpointsActionComponent } from './endpoints/endpoints-action/endpoints
 import { EndpointsSearchComponent } from './endpoints/endpoints-search/endpoints-search.component';
 import { EndpointsComponent } from './endpoints/endpoints.component';
 import { SettingsNodeComponent } from './settings/settings-node/settings-node.component';
-import { LogsActionComponent } from './logs/logs-action/logs-action.component';
-import { LogsSearchComponent } from './logs/logs-search/logs-search.component';
-import { LogsComponent } from './logs/logs.component';
 
 import { ChainComponent } from './chain/chain.component';
 import { ChainServerComponent } from './chain/chain-server/chain-server.component';
@@ -112,6 +109,7 @@ import localeEnGb from '@angular/common/locales/en-GB';
 import { ReplaceCharacterPipe } from './shared/pipes/replace-character.pipe';
 import { ErrorPopupEffects } from './shared/error-popup/error-popup.effects';
 import { VarDirective } from './shared/directives/var.directive';
+import { MatNativeDateModule } from '@angular/material/core';
 
 registerLocaleData(localeFr, 'fr');
 registerLocaleData(localeEnGb, 'en');
@@ -135,9 +133,6 @@ function loadIcons(matIconService: IconRegisterService): Function {
     EndpointsSearchComponent,
     EndpointsComponent,
     SettingsNodeComponent,
-    LogsActionComponent,
-    LogsSearchComponent,
-    LogsComponent,
     ChainComponent,
     ChainServerComponent,
     ChainConfigComponent,
@@ -228,6 +223,7 @@ function loadIcons(matIconService: IconRegisterService): Function {
     MatStepperModule,
     MatToolbarModule,
     MatTooltipModule,
+    MatNativeDateModule,
     ClipboardModule,
 
     FormsModule,

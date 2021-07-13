@@ -9,7 +9,7 @@ import { SystemResourcesActionTypes } from './system-resources.actions';
 import { SystemResources } from '../../shared/types/resources/system/system-resources.type';
 import { systemResources } from '../resources/resources.reducer';
 
-export type ResourceType = 'cpu' | 'memory' | 'disk';
+export type ResourceType = 'cpu' | 'memory' | 'storage';
 
 @UntilDestroy()
 @Component({
@@ -26,7 +26,7 @@ export class SystemResourcesComponent implements OnInit, OnDestroy {
   readonly yAxisGigaBytesConversion = (value) => (value < 1 ? value : (value + '.00')) + ' GB';
   readonly yAxisMegaBytesConversion = (value) => `${value} MB`;
 
-  activeSummary: ResourceType = 'disk';
+  activeSummary: ResourceType = 'storage';
 
   private isSmallDevice: boolean;
 

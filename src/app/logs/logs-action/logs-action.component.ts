@@ -1,11 +1,14 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { VirtualScrollDirective } from '../../shared/virtual-scroll/virtual-scroll.directive';
-import {LogsAction} from '../../shared/types/logs/logs-action.type';
-import {LogsActionEntity} from '../../shared/types/logs/logs-action-entity.type';
+import { LogsAction } from '../../shared/types/logs/logs-action.type';
+import { LogsActionEntity } from '../../shared/types/logs/logs-action-entity.type';
+import { State } from '../../app.reducers';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { TezedgeTimeValidator } from '../../shared/validators/tezedge-time.validator';
 
+@UntilDestroy()
 @Component({
   selector: 'app-logs-action',
   templateUrl: './logs-action.component.html',
@@ -23,24 +26,23 @@ export class LogsActionComponent implements OnInit, OnDestroy {
   virtualPageSize = 1000;
   activeFilters = [];
 
-  onDestroy$ = new Subject();
-
   @ViewChild(VirtualScrollDirective) vrFor: VirtualScrollDirective;
-  // @ViewChild(MatAccordion) accordion: MatAccordion;
 
-  constructor(
-    public store: Store<any>,
-    private changeDetector: ChangeDetectorRef,
-    private ngZone: NgZone
-  ) {
-  }
+  readonly dateNow = new Date();
+  formGroup: FormGroup;
+
+  constructor(private store: Store<State>,
+              private changeDetector: ChangeDetectorRef,
+              private ngZone: NgZone,
+              private formBuilder: FormBuilder) { }
 
   ngOnInit() {
-    this.store.dispatch({type: 'LOGS_ACTION_RESET'});
+    this.store.dispatch({ type: 'LOGS_ACTION_RESET' });
     this.scrollStart(null);
+    this.initForm();
 
     this.store.select('logsAction')
-      .pipe(takeUntil(this.onDestroy$))
+      .pipe(untilDestroyed(this))
       .subscribe((data: LogsAction) => {
         this.virtualScrollItems = data;
         this.logsActionShow = this.virtualScrollItems.ids.length > 0;
@@ -62,6 +64,25 @@ export class LogsActionComponent implements OnInit, OnDestroy {
 
     // this.logsAction$ = this.store.select('logsAction');
     // this.logsDataSource = new LogsDataSource(this.logsAction$, this.store);
+  }
+
+  private initForm(): void {
+    this.formGroup = this.formBuilder.group({
+      date: new FormControl('', [Validators.required, TezedgeTimeValidator.isDate]),
+      hour: new FormControl('', [Validators.required, TezedgeTimeValidator.isHour]),
+      minute: new FormControl('', [Validators.required, Validators.max(59)]),
+      second: new FormControl('', [Validators.required, Validators.max(59)]),
+      millisecond: new FormControl('', [Validators.required, Validators.max(999)]),
+    });
+  }
+
+  searchByTime(): void {
+    this.formGroup.markAllAsTouched();
+    console.log(this.formGroup);
+    if (this.formGroup.valid) {
+      this.scrollStop();
+
+    }
   }
 
   getItems($event) {
@@ -111,7 +132,7 @@ export class LogsActionComponent implements OnInit, OnDestroy {
     if (this.virtualScrollItems && this.virtualScrollItems.stream) {
       return;
     }
-
+    this.initForm();
     this.store.dispatch({
       type: 'LOGS_ACTION_START',
       payload: {
@@ -180,9 +201,5 @@ export class LogsActionComponent implements OnInit, OnDestroy {
     this.store.dispatch({
       type: 'LOGS_ACTION_STOP'
     });
-
-    // close all observables
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
   }
 }

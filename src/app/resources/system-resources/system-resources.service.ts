@@ -67,14 +67,14 @@ export class SystemResourcesService {
       resource.cpu.protocolRunners = responseItem.cpu.protocol_runners;
       resource.cpu.total = Object.values(resource.cpu).filter(Boolean).reduce((total: number, current: number) => total + current, 0);
 
-      resource.disk = {};
-      resource.disk.blockStorage = responseItem.disk.block_storage / GB_DIVISOR;
-      resource.disk.contextIrmin = responseItem.disk.context_irmin / GB_DIVISOR;
-      resource.disk.mainDb = (responseItem.disk.main_db !== undefined) ? responseItem.disk.main_db / GB_DIVISOR : undefined;
-      resource.disk.debugger = responseItem.disk.debugger / GB_DIVISOR;
-      resource.disk.contextActions = (responseItem.disk.context_actions !== undefined) ? responseItem.disk.context_actions / GB_DIVISOR : undefined;
-      resource.disk.contextMerkleRocksDb = (responseItem.disk.context_merkle_rocksdb !== undefined) ? responseItem.disk.context_merkle_rocksdb / GB_DIVISOR : undefined;
-      resource.disk.total = Object.values(resource.disk).filter(Boolean).reduce((total: number, current: number) => total + current, 0);
+      resource.storage = {};
+      resource.storage.blockStorage = responseItem.disk.block_storage / GB_DIVISOR;
+      resource.storage.contextIrmin = responseItem.disk.context_irmin / GB_DIVISOR;
+      resource.storage.mainDb = (responseItem.disk.main_db !== undefined) ? responseItem.disk.main_db / GB_DIVISOR : undefined;
+      resource.storage.debugger = responseItem.disk.debugger / GB_DIVISOR;
+      resource.storage.contextActions = (responseItem.disk.context_actions !== undefined) ? responseItem.disk.context_actions / GB_DIVISOR : undefined;
+      resource.storage.contextMerkleRocksDb = (responseItem.disk.context_merkle_rocksdb !== undefined) ? responseItem.disk.context_merkle_rocksdb / GB_DIVISOR : undefined;
+      resource.storage.total = Object.values(resource.storage).filter(Boolean).reduce((total: number, current: number) => total + current, 0);
       return resource;
     });
     return this.createChartData(resources, isSmallDevice);
@@ -87,7 +87,7 @@ export class SystemResourcesService {
     chartData.resourcesSummary = this.createSummaryBlocks(resources);
     chartData.colorScheme = COLOR_SCHEME;
     chartData.memory = [];
-    chartData.disk = [];
+    chartData.storage = [];
     chartData.cpu = [];
 
     if (!resources.length) {
@@ -135,38 +135,38 @@ export class SystemResourcesService {
       });
     }
 
-    chartData.disk.push({
+    chartData.storage.push({
       name: 'TOTAL',
-      series: this.getSeries(resources, 'disk.total')
+      series: this.getSeries(resources, 'storage.total')
     });
-    chartData.disk.push({
+    chartData.storage.push({
       name: 'BLOCK STORAGE',
-      series: this.getSeries(resources, 'disk.blockStorage')
+      series: this.getSeries(resources, 'storage.blockStorage')
     });
-    chartData.disk.push({
+    chartData.storage.push({
       name: 'CONTEXT IRMIN',
-      series: this.getSeries(resources, 'disk.contextIrmin')
+      series: this.getSeries(resources, 'storage.contextIrmin')
     });
-    chartData.disk.push({
+    chartData.storage.push({
       name: 'DEBUGGER',
-      series: this.getSeries(resources, 'disk.debugger')
+      series: this.getSeries(resources, 'storage.debugger')
     });
-    if (resources[0].disk.contextActions !== undefined) {
-      chartData.disk.push({
+    if (resources[0].storage.contextActions !== undefined) {
+      chartData.storage.push({
         name: 'CONTEXT ACTIONS',
-        series: this.getSeries(resources, 'disk.contextActions')
+        series: this.getSeries(resources, 'storage.contextActions')
       });
     }
-    if (resources[0].disk.contextMerkleRocksDb !== undefined) {
-      chartData.disk.push({
+    if (resources[0].storage.contextMerkleRocksDb !== undefined) {
+      chartData.storage.push({
         name: 'CONTEXT MERKLE ROCKS DB',
-        series: this.getSeries(resources, 'disk.contextMerkleRocksDb')
+        series: this.getSeries(resources, 'storage.contextMerkleRocksDb')
       });
     }
-    if (resources[0].disk.mainDb !== undefined) {
-      chartData.disk.push({
+    if (resources[0].storage.mainDb !== undefined) {
+      chartData.storage.push({
         name: 'MAIN DB',
-        series: this.getSeries(resources, 'disk.mainDb')
+        series: this.getSeries(resources, 'storage.mainDb')
       });
     }
 
@@ -199,7 +199,7 @@ export class SystemResourcesService {
 
   private createSummaryBlocks(resources: any[]): SystemResourcesSummary {
     const summary: SystemResourcesSummary = {
-      disk: [],
+      storage: [],
       cpu: [],
       memory: [],
       timestamp: ''
@@ -238,35 +238,35 @@ export class SystemResourcesService {
       ));
     }
 
-    summary.disk.push(new SystemResourcesSummaryBlock('Total', lastResource.disk.total, COLOR_SCHEME.domain[0], 'GB'));
-    summary.disk.push(new SystemResourcesSummaryBlock(
+    summary.storage.push(new SystemResourcesSummaryBlock('Total', lastResource.storage.total, COLOR_SCHEME.domain[0], 'GB'));
+    summary.storage.push(new SystemResourcesSummaryBlock(
       'Block storage',
-      lastResource.disk.blockStorage,
+      lastResource.storage.blockStorage,
       COLOR_SCHEME.domain[1],
       'GB'
     ));
-    summary.disk.push(new SystemResourcesSummaryBlock('Context Irmin', lastResource.disk.contextIrmin, COLOR_SCHEME.domain[2], 'GB'));
-    summary.disk.push(new SystemResourcesSummaryBlock('Debugger', lastResource.disk.debugger, COLOR_SCHEME.domain[3], 'GB'));
-    if (lastResource.disk.contextActions !== undefined) {
-      summary.disk.push(
+    summary.storage.push(new SystemResourcesSummaryBlock('Context Irmin', lastResource.storage.contextIrmin, COLOR_SCHEME.domain[2], 'GB'));
+    summary.storage.push(new SystemResourcesSummaryBlock('Debugger', lastResource.storage.debugger, COLOR_SCHEME.domain[3], 'GB'));
+    if (lastResource.storage.contextActions !== undefined) {
+      summary.storage.push(
         new SystemResourcesSummaryBlock(
           'Context Actions',
-          lastResource.disk.contextActions,
+          lastResource.storage.contextActions,
           COLOR_SCHEME.domain[4],
           'GB'
         ));
     }
-    if (lastResource.disk.contextMerkleRocksDb !== undefined) {
-      summary.disk.push(new SystemResourcesSummaryBlock(
+    if (lastResource.storage.contextMerkleRocksDb !== undefined) {
+      summary.storage.push(new SystemResourcesSummaryBlock(
         'Context Merkle Rocks DB',
-        lastResource.disk.contextMerkleRocksDb,
+        lastResource.storage.contextMerkleRocksDb,
         COLOR_SCHEME.domain[5],
         'GB'
       ));
     }
 
-    if (lastResource.disk.mainDb !== undefined) {
-      summary.disk.push(new SystemResourcesSummaryBlock('Main DB', lastResource.disk.mainDb, COLOR_SCHEME.domain[6], 'GB'));
+    if (lastResource.storage.mainDb !== undefined) {
+      summary.storage.push(new SystemResourcesSummaryBlock('Main DB', lastResource.storage.mainDb, COLOR_SCHEME.domain[6], 'GB'));
     }
 
     return summary;

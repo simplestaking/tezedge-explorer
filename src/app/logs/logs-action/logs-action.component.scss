@@ -1,0 +1,16 @@
+form {
+  height: 24px;
+  margin-right: 5px;
+
+  .custom-bottom-form-field {
+    margin: 0 4px;
+
+    &.time-field {
+      width: 50px;
+    }
+  }
+
+  button {
+    margin-left: 4px;
+  }
+}
